@@ -1,0 +1,9 @@
+<resources>
+    <string name="app_name">CurrencyApp</string>
+    <string name="title">Currency converter</string>
+    <string name="internet_connection_error">Internet connection problem</string>
+    <string name="server_connection_error">Sever connection problem</string>
+    <string name="internal_error">Internal error</string>
+    <string name="currency_wrong">Currency wrong</string>
+    <string name="ok">OK</string>
+</resources>
