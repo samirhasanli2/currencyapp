@@ -19,6 +19,7 @@ import az.bank.currencyapp.models.RateBody;
 import az.bank.currencyapp.network.DataManager;
 import az.bank.currencyapp.network.NetworkService;
 import az.bank.currencyapp.util.ErrorHandler;
+import az.bank.currencyapp.util.Util;
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers;
 import io.reactivex.rxjava3.disposables.CompositeDisposable;
 import io.reactivex.rxjava3.schedulers.Schedulers;
@@ -55,7 +56,7 @@ public class MainPresenter {
 
                     // Burada apiden coxsayli banklarin valyutasi gelir. Unibanki saxlayiram ve elave yalnishliq olaraq number de gelir onu da filter edirem.
                     // Istifade etdiyim bezi sheyler SDK versiyani yukseltdi onu azaltmaga vaxt olmadi.
-                    mainView.allRateResponseSuccess(allRatesResponse.getBody().stream().filter(p -> p.getName().equals("Uni Bank")).filter(p -> !isNumeric(p.getCode())).collect(Collectors.toList()));
+                    mainView.allRateResponseSuccess(allRatesResponse.getBody().stream().filter(p -> p.getName().equals("Uni Bank")).filter(p -> !Util.isNumeric(p.getCode())).collect(Collectors.toList()));
                 }, throwable -> {
                     mainView.responseError(errorHandler.getThrowError(throwable));
                 }));
@@ -63,10 +64,6 @@ public class MainPresenter {
     }
 
 
-    public static boolean isNumeric(String str) {
-        ParsePosition pos = new ParsePosition(0);
-        NumberFormat.getInstance().parse(str, pos);
-        return str.length() == pos.getIndex();
-    }
+
 
 }
