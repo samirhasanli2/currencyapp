@@ -28,11 +28,11 @@ public class RateBody {
     @Expose
     private String name;
 
-    public void RateBody() {
+    public RateBody() {
 
     }
 
-    public void RateBody(String code, Double buy_cash, Double buy_none_cash, Double sell_cash, Double sell_none_cash, String name) {
+    public RateBody(String code, Double buy_cash, Double buy_none_cash, Double sell_cash, Double sell_none_cash, String name) {
         this.code = code;
         this.buy_cash = buy_cash;
         this.buy_none_cash = buy_none_cash;

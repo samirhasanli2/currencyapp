@@ -2,6 +2,13 @@ package az.bank.currencyapp.presentation.main;
 
 import android.app.Application;
 import android.content.Context;
+import android.os.Build;
+
+import androidx.annotation.RequiresApi;
+
+import java.text.NumberFormat;
+import java.text.ParsePosition;
+import java.util.stream.Collectors;
 
 import javax.inject.Inject;
 
@@ -37,30 +44,29 @@ public class MainPresenter {
         this.mainView = mainView;
     }
 
+    @RequiresApi(api = Build.VERSION_CODES.N)
     void fetchData() {
-        compositeDisposable.add(networkService.getCurrency("AZN", "USD")
-                .subscribeOn(Schedulers.io())
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(currencyResponses -> {
-                    if(currencyResponses.size() > 0) {
-                        mainView.responseSuccess(currencyResponses.get(0));
-                    }else {
-                        mainView.responseError(errorHandler.getStringError("currency_wrong"));
-                    }
-                }, throwable -> {
-                    mainView.responseError(errorHandler.getThrowError(throwable));
-                }));
-
         compositeDisposable.add(networkService.getAllRates()
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(allRatesResponse -> {
-                    RateBody azn = new RateBody();
+                    RateBody azn = new RateBody("AZN", 1.0, 1.0, 1.0, 1.0, "Uni Bank");
+                    allRatesResponse.getBody().add(azn);
 
-                    mainView.allRateResponseSuccess(allRatesResponse.getBody());
+                    // Burada apiden coxsayli banklarin valyutasi gelir. Unibanki saxlayiram ve elave yalnishliq olaraq number de gelir onu da filter edirem.
+                    // Istifade etdiyim bezi sheyler SDK versiyani yukseltdi onu azaltmaga vaxt olmadi.
+                    mainView.allRateResponseSuccess(allRatesResponse.getBody().stream().filter(p -> p.getName().equals("Uni Bank")).filter(p -> !isNumeric(p.getCode())).collect(Collectors.toList()));
                 }, throwable -> {
                     mainView.responseError(errorHandler.getThrowError(throwable));
                 }));
 
     }
+
+
+    public static boolean isNumeric(String str) {
+        ParsePosition pos = new ParsePosition(0);
+        NumberFormat.getInstance().parse(str, pos);
+        return str.length() == pos.getIndex();
+    }
+
 }

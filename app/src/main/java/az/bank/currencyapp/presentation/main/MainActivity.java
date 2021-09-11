@@ -1,21 +1,26 @@
 package az.bank.currencyapp.presentation.main;
 
+import androidx.annotation.RequiresApi;
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.content.ContextCompat;
 
+import android.content.DialogInterface;
 import android.graphics.Color;
+import android.os.Build;
 import android.os.Bundle;
 import android.text.InputFilter;
 import android.util.Log;
 import android.view.View;
 import android.widget.EditText;
+import android.widget.LinearLayout;
+import android.widget.TextView;
 
 import com.google.android.material.snackbar.Snackbar;
 import com.google.gson.Gson;
 
-import java.text.NumberFormat;
+import java.util.ArrayList;
 import java.util.List;
-import java.util.Locale;
 
 import javax.inject.Inject;
 
@@ -27,7 +32,6 @@ import az.bank.currencyapp.di.NetworkModule;
 import az.bank.currencyapp.models.RateBody;
 import az.bank.currencyapp.network.NetworkService;
 import az.bank.currencyapp.util.DecimalDigitsInputFilter;
-import az.bank.currencyapp.util.MoneyTextWatcher;
 
 
 public class MainActivity extends AppCompatActivity implements MainView {
@@ -37,7 +41,13 @@ public class MainActivity extends AppCompatActivity implements MainView {
 
     private MainPresenter presenter;
     EditText fromInput;
+    EditText toInput;
+    TextView fromText;
+    TextView toText;
+    LinearLayout selectFromCurrency;
+    LinearLayout selectToCurrency;
 
+    @RequiresApi(api = Build.VERSION_CODES.N)
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -54,8 +64,12 @@ public class MainActivity extends AppCompatActivity implements MainView {
 
     private void initView() {
         fromInput = findViewById(R.id.fromInput);
+        toInput = findViewById(R.id.toInput);
         fromInput.setFilters(new InputFilter[] {new DecimalDigitsInputFilter(2)});
-//        fromInput.setFilters(new InputFilter[]{ new InputFilterMinMax("1", "100000000")});
+        fromText = findViewById(R.id.fromText);
+        selectFromCurrency = findViewById(R.id.selectFromCurrency);
+        selectToCurrency = findViewById(R.id.selectToCurrency);
+        toText = findViewById(R.id.toText);
     }
 
 
@@ -67,6 +81,48 @@ public class MainActivity extends AppCompatActivity implements MainView {
 
     @Override
     public void allRateResponseSuccess(List<RateBody> listRates) {
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setTitle(getString(R.string.select_currency));
+
+        ArrayList<String> currnecyStrings = new ArrayList<String>();
+        for (int i = 0; i < listRates.size(); i++) {
+            if(listRates.get(i).getName().equals("Uni Bank")) {
+                currnecyStrings.add(listRates.get(i).getCode());
+            }
+        }
+        toInput.setText(listRates.get(0).getBuy_none_cash());
+
+
+        selectFromCurrency.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Log.e("CLIIKKK", "onClick: ASASD");
+                builder.setItems(currnecyStrings.toArray(new String[0]), new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        fromText.setText(currnecyStrings.get(which));
+
+                    }
+                });
+                AlertDialog dialog = builder.create();
+                dialog.show();
+            }
+        });
+
+        selectToCurrency.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                builder.setItems(currnecyStrings.toArray(new String[0]), new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        toText.setText(currnecyStrings.get(which));
+
+                    }
+                });
+                AlertDialog dialog = builder.create();
+                dialog.show();
+            }
+        });
         Log.e("Response", "rateResponseSuccess: " + (new Gson()).toJson(listRates));
     }
 
@@ -84,4 +140,6 @@ public class MainActivity extends AppCompatActivity implements MainView {
         }).show();
 
     }
+
+
 }

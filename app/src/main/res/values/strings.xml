@@ -6,4 +6,5 @@
     <string name="internal_error">Internal error</string>
     <string name="currency_wrong">Currency wrong</string>
     <string name="ok">OK</string>
+    <string name="select_currency">Select currency</string>
 </resources>
