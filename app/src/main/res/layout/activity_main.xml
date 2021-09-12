@@ -117,4 +117,16 @@
             android:layout_height="54dp"/>
     </LinearLayout>
 
+    <LinearLayout
+        android:id="@+id/loading"
+        android:gravity="center"
+        android:background="@color/main_color"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+        <ProgressBar
+            android:indeterminateTint="@color/white"
+            android:layout_width="50dp"
+            android:layout_height="50dp"/>
+    </LinearLayout>
+
 </androidx.constraintlayout.widget.ConstraintLayout>

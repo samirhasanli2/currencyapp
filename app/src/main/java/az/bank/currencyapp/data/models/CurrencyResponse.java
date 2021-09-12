@@ -1,4 +1,4 @@
-package az.bank.currencyapp.models;
+package az.bank.currencyapp.data.models;
 
 
 import com.google.gson.annotations.Expose;

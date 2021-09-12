@@ -5,6 +5,7 @@ import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.content.ContextCompat;
 
+import android.content.Context;
 import android.content.DialogInterface;
 import android.graphics.Color;
 import android.os.Build;
@@ -14,6 +15,7 @@ import android.text.InputFilter;
 import android.text.TextWatcher;
 import android.util.Log;
 import android.view.View;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.TextView;
@@ -21,19 +23,19 @@ import android.widget.TextView;
 import com.google.android.material.snackbar.Snackbar;
 import com.google.gson.Gson;
 
-import java.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.List;
 
 import javax.inject.Inject;
 
 import az.bank.currencyapp.R;
+import az.bank.currencyapp.data.db.DbHelper;
 import az.bank.currencyapp.deps.DaggerAppComponent;
 import az.bank.currencyapp.di.AppModule;
-import az.bank.currencyapp.models.CurrencyResponse;
+import az.bank.currencyapp.data.models.CurrencyResponse;
 import az.bank.currencyapp.di.NetworkModule;
-import az.bank.currencyapp.models.RateBody;
-import az.bank.currencyapp.network.NetworkService;
+import az.bank.currencyapp.data.models.RateBody;
+import az.bank.currencyapp.data.network.NetworkService;
 import az.bank.currencyapp.util.DecimalDigitsInputFilter;
 import az.bank.currencyapp.util.Util;
 
@@ -42,6 +44,8 @@ public class MainActivity extends AppCompatActivity implements MainView {
 
     @Inject
     public NetworkService networkService;
+    @Inject
+    public DbHelper dbHelper;
 
     private MainPresenter presenter;
     EditText fromInput;
@@ -50,6 +54,7 @@ public class MainActivity extends AppCompatActivity implements MainView {
     TextView toText;
     LinearLayout selectFromCurrency;
     LinearLayout selectToCurrency;
+    LinearLayout loading;
 
     List<RateBody> rates;
     int fromPosition = 0;
@@ -73,11 +78,12 @@ public class MainActivity extends AppCompatActivity implements MainView {
     private void initView() {
         fromInput = findViewById(R.id.fromInput);
         toInput = findViewById(R.id.toInput);
-        fromInput.setFilters(new InputFilter[] {new DecimalDigitsInputFilter(2)});
         fromText = findViewById(R.id.fromText);
+        toText = findViewById(R.id.toText);
         selectFromCurrency = findViewById(R.id.selectFromCurrency);
         selectToCurrency = findViewById(R.id.selectToCurrency);
-        toText = findViewById(R.id.toText);
+        loading = findViewById(R.id.loading);
+        fromInput.setFilters(new InputFilter[] {new DecimalDigitsInputFilter(2)});
     }
 
 
@@ -104,6 +110,11 @@ public class MainActivity extends AppCompatActivity implements MainView {
             toPosition = listRates.size() -1;
             convertView();
         }
+        loading.setVisibility(View.GONE);
+        fromInput.requestFocus();
+        fromInput.setSelection(fromInput.getText().length());
+        InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+        imm.showSoftInput(fromInput, InputMethodManager.SHOW_IMPLICIT);
 
         selectFromCurrency.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -172,7 +183,7 @@ public class MainActivity extends AppCompatActivity implements MainView {
 
             }
         }).show();
-
+        loading.setVisibility(View.GONE);
     }
 
 

@@ -1,12 +1,9 @@
 package az.bank.currencyapp.di;
 
-import android.content.Context;
-
 import javax.inject.Singleton;
 
 import az.bank.currencyapp.BuildConfig;
-import az.bank.currencyapp.network.NetworkService;
-import az.bank.currencyapp.util.ErrorHandler;
+import az.bank.currencyapp.data.network.NetworkService;
 import dagger.Module;
 import dagger.Provides;
 import okhttp3.OkHttpClient;
