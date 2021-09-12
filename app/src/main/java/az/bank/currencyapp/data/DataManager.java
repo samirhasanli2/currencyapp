@@ -25,8 +25,6 @@ public class DataManager {
     public NetworkService networkService;
 //    public DbHelper dbHelper;
     public AppDbHelper appDbHelper;
-    private CompositeDisposable compositeDisposable = new CompositeDisposable();
-    private static DataManager dataManager;
 
     @Inject
     public DataManager(NetworkService networkService, AppDbHelper appDbHelper) {
@@ -50,17 +48,9 @@ public class DataManager {
         return appDbHelper.getAllRatesFromDB()
                 .flatMap(rateLocalModels -> {
                     if(rateLocalModels.isEmpty()) {
-                        Single<AllRatesResponse> responseSingle = networkService.getAllRates();
-                        Single<List<RateBody>> response = responseSingle.flatMap(allRatesResponse -> Single.just(allRatesResponse.getBody()));
-                        compositeDisposable.add(response.subscribeOn(Schedulers.io())
-                                .observeOn(AndroidSchedulers.mainThread())
-                                .subscribe(allRatesResponse -> {
-                                    saveRateList(allRatesResponse).subscribeOn(Schedulers.io())
-                                            .observeOn(AndroidSchedulers.mainThread())
-                                            .subscribe(status -> {
-                                            });
-                                }));
-                        return response;
+                        return networkService.getAllRates()
+                                .map(AllRatesResponse::getBody)
+                                .doAfterSuccess(rates -> saveRateList(rates).subscribe());
                     }
                     return Single.just(rateLocalModels);
                 });
