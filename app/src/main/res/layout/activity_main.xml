@@ -54,7 +54,7 @@
         <EditText
             android:id="@+id/fromInput"
             android:text="1"
-            android:lines="1"
+            android:maxLines="1"
             android:hint="Amount"
             android:textSize="@dimen/xxlarge"
             android:gravity="end"
@@ -65,7 +65,7 @@
             android:layout_weight="1"
             android:layout_width="0dp"
             android:backgroundTint="@color/white"
-            android:layout_height="54dp"/>
+            android:layout_height="wrap_content"/>
     </LinearLayout>
 
     <LinearLayout
@@ -101,7 +101,7 @@
         <EditText
             android:id="@+id/toInput"
             android:hint=""
-            android:lines="1"
+            android:maxLines="1"
             android:focusable="false"
             android:focusableInTouchMode="false"
             android:cursorVisible="false"
@@ -114,7 +114,7 @@
             android:layout_weight="1"
             android:layout_width="0dp"
             android:backgroundTint="@color/white"
-            android:layout_height="54dp"/>
+            android:layout_height="wrap_content"/>
     </LinearLayout>
 
     <LinearLayout

@@ -2,17 +2,18 @@ package az.bank.currencyapp.data.db;
 
 import java.util.List;
 
-import az.bank.currencyapp.data.db.models.RateLocalModel;
+import az.bank.currencyapp.data.models.RateBody;
 import io.reactivex.rxjava3.core.Observable;
+import io.reactivex.rxjava3.core.Single;
 
 public interface DbHelper {
 
-    Observable<List<RateLocalModel>> getAllRatesFromDB();
+    Single<List<RateBody>> getAllRatesFromDB();
 
-    Observable<Boolean> isRateEmpty();
+    Single<Boolean> isRateEmpty();
 
-    Observable<Boolean> saveRate(RateLocalModel rateLocalModel);
+    Single<Boolean> saveRate(RateBody rateLocalModel);
 
-    Observable<Boolean> saveRateList(List<RateLocalModel> rateLocalModelList);
+    Single<Boolean> saveRateList(List<RateBody> rateLocalModelList);
 
 }

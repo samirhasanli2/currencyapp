@@ -2,8 +2,11 @@ package az.bank.currencyapp.presentation.main;
 
 import android.app.Application;
 import android.os.Build;
+import android.util.Log;
 
 import androidx.annotation.RequiresApi;
+
+import com.google.android.gms.common.util.CollectionUtils;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -11,8 +14,9 @@ import java.util.stream.Collectors;
 
 import javax.inject.Inject;
 
+import az.bank.currencyapp.data.db.AppDbHelper;
 import az.bank.currencyapp.data.db.DbHelper;
-import az.bank.currencyapp.data.db.models.RateLocalModel;
+
 import az.bank.currencyapp.deps.DaggerAppComponent;
 import az.bank.currencyapp.di.AppModule;
 import az.bank.currencyapp.di.NetworkModule;
@@ -30,7 +34,7 @@ public class MainPresenter {
     @Inject
     public NetworkService networkService;
     @Inject
-    public DbHelper dbHelper;
+    public AppDbHelper appDbHelper;
 
     private DataManager dataManager;
 
@@ -44,28 +48,27 @@ public class MainPresenter {
 
     public MainPresenter(MainView mainView, Application application) {
         DaggerAppComponent.builder().networkModule(new NetworkModule()).appModule(new AppModule(application)).build().inject(this);
-
+        dataManager = new DataManager(networkService, appDbHelper);
 
         this.mainView = mainView;
     }
 
-    @RequiresApi(api = Build.VERSION_CODES.N)
+
     void fetchData() {
         compositeDisposable.add(dataManager.getAllRates()
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(allRatesResponse -> {
                     RateBody azn = new RateBody("AZN", 1.0, 1.0, 1.0, 1.0, "Uni Bank");
-                    allRatesResponse.getBody().add(azn);
+                    allRatesResponse.add(azn);
 
                     // Burada apiden coxsayli banklarin valyutasi gelir. Unibanki saxlayiram ve elave yalnishliq olaraq number de gelir onu da filter edirem.
-                    // Istifade etdiyim bezi sheyler SDK versiyani yukseltdi onu azaltmaga vaxt olmadi.
-                    List<RateBody> rateList = allRatesResponse.getBody().stream().filter(p -> p.getName().equals("Uni Bank")).filter(p -> !Util.isNumeric(p.getCode())).collect(Collectors.toList());
-                    List<RateLocalModel> rateLocalModelList = new ArrayList<>() ;
-                    for (int i = 0; i < rateList.size(); i++) {
-                        rateLocalModelList.add(new RateLocalModel(rateList.get(i).getCode(), rateList.get(i).getName(), rateList.get(i).getBuy_cash(), rateList.get(i).getBuy_none_cash(), rateList.get(i).getSell_cash(), rateList.get(i).getSell_none_cash()));
+                    List<RateBody> rateList = new ArrayList<RateBody>();
+                    for (int i = 0; i < allRatesResponse.size(); i++) {
+                        if(allRatesResponse.get(i).getName().equals("Uni Bank") && !Util.isNumeric(allRatesResponse.get(i).getCode())) {
+                            rateList.add(allRatesResponse.get(i));
+                        }
                     }
-                    dataManager.saveRateList(rateLocalModelList);
                     mainView.allRateResponseSuccess(rateList);
                 }, throwable -> {
                     mainView.responseError(errorHandler.getThrowError(throwable));

@@ -1,6 +1,8 @@
 package az.bank.currencyapp.data.db;
 
 
+import android.util.Log;
+
 import java.util.List;
 import java.util.concurrent.Callable;
 
@@ -8,10 +10,11 @@ import javax.inject.Inject;
 import javax.inject.Singleton;
 
 
-import az.bank.currencyapp.data.db.models.DaoMaster;
-import az.bank.currencyapp.data.db.models.DaoSession;
-import az.bank.currencyapp.data.db.models.RateLocalModel;
+import az.bank.currencyapp.data.models.DaoMaster;
+import az.bank.currencyapp.data.models.DaoSession;
+import az.bank.currencyapp.data.models.RateBody;
 import io.reactivex.rxjava3.core.Observable;
+import io.reactivex.rxjava3.core.Single;
 
 @Singleton
 public class AppDbHelper implements DbHelper {
@@ -21,46 +24,48 @@ public class AppDbHelper implements DbHelper {
     @Inject
     public AppDbHelper(DbOpenHelper dbOpenHelper) {
         mDaoSession = new DaoMaster(dbOpenHelper.getWritableDb()).newSession();
+
     }
 
 
     @Override
-    public Observable<List<RateLocalModel>> getAllRatesFromDB() {
-        return Observable.fromCallable(new Callable<List<RateLocalModel>>() {
+    public Single<List<RateBody>> getAllRatesFromDB() {
+        return Single.fromCallable(new Callable<List<RateBody>>() {
             @Override
-            public List<RateLocalModel> call() throws Exception {
-                return mDaoSession.getRateLocalModelDao().loadAll();
+            public List<RateBody> call() throws Exception {
+                Log.e("Daooooo", mDaoSession.getRateBodyDao().queryBuilder().list().toString());
+                return mDaoSession.getRateBodyDao().queryBuilder().list();
             }
         });
     }
 
     @Override
-    public Observable<Boolean> isRateEmpty() {
-        return Observable.fromCallable(new Callable<Boolean>() {
+    public Single<Boolean> isRateEmpty() {
+        return Single.fromCallable(new Callable<Boolean>() {
             @Override
             public Boolean call() throws Exception {
-                return !(mDaoSession.getRateLocalModelDao().count() > 0);
+                return !(mDaoSession.getRateBodyDao().count() > 0);
             }
         });
     }
 
     @Override
-    public Observable<Boolean> saveRate(final RateLocalModel option) {
-        return Observable.fromCallable(new Callable<Boolean>() {
+    public Single<Boolean> saveRate(final RateBody option) {
+        return Single.fromCallable(new Callable<Boolean>() {
             @Override
             public Boolean call() throws Exception {
-                mDaoSession.getRateLocalModelDao().insertInTx(option);
+                mDaoSession.getRateBodyDao().insertInTx(option);
                 return true;
             }
         });
     }
 
     @Override
-    public Observable<Boolean> saveRateList(final List<RateLocalModel> questionList) {
-        return Observable.fromCallable(new Callable<Boolean>() {
+    public Single<Boolean> saveRateList(final List<RateBody> questionList) {
+        return Single.fromCallable(new Callable<Boolean>() {
             @Override
             public Boolean call() throws Exception {
-                mDaoSession.getRateLocalModelDao().insertInTx(questionList);
+                mDaoSession.getRateBodyDao().insertInTx(questionList);
                 return true;
             }
         });

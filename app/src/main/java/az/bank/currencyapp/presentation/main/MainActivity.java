@@ -29,6 +29,7 @@ import java.util.List;
 import javax.inject.Inject;
 
 import az.bank.currencyapp.R;
+import az.bank.currencyapp.data.db.AppDbHelper;
 import az.bank.currencyapp.data.db.DbHelper;
 import az.bank.currencyapp.deps.DaggerAppComponent;
 import az.bank.currencyapp.di.AppModule;
@@ -45,7 +46,7 @@ public class MainActivity extends AppCompatActivity implements MainView {
     @Inject
     public NetworkService networkService;
     @Inject
-    public DbHelper dbHelper;
+    public AppDbHelper appDbHelper;
 
     private MainPresenter presenter;
     EditText fromInput;
@@ -60,7 +61,6 @@ public class MainActivity extends AppCompatActivity implements MainView {
     int fromPosition = 0;
     int toPosition = 0;
 
-    @RequiresApi(api = Build.VERSION_CODES.N)
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -90,7 +90,7 @@ public class MainActivity extends AppCompatActivity implements MainView {
 
     @Override
     public void responseSuccess(CurrencyResponse currencyResponse) {
-        Log.e("TAG", "responseSuccess: "+currencyResponse.getResult());
+
     }
 
     @Override
@@ -119,7 +119,6 @@ public class MainActivity extends AppCompatActivity implements MainView {
         selectFromCurrency.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Log.e("CLIIKKK", "onClick: ASASD");
                 builder.setItems(currnecyStrings.toArray(new String[0]), new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {

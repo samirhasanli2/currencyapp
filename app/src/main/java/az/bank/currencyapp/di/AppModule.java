@@ -27,7 +27,7 @@ public class AppModule {
 
     @Provides
     @Singleton
-    public DbHelper providesDbHelper() {
+    public AppDbHelper providesAppDbHelper() {
         return new AppDbHelper(new DbOpenHelper(application.getApplicationContext(), "rate_db"));
     }
 
